@@ -1,0 +1,44 @@
+services:
+  product-service:
+    depends_on:
+      - mongodb
+    build: ./product-service
+    ports:
+      - "5001:5001"
+    image: product-service:latest
+    env_file:
+      - ./product-service/.env
+  mongodb:
+    image: mongo:7.0
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${DB_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${DB_PASSWORD}
+      MONGO_INITDB_DATABASE: ${DB_NAME}
+    env_file:
+      - ./product-service/.env
+    volumes:
+      - mongo-data:/data/db
+    ports:
+      - "27017:27017"
+  db:
+    image: postgres:13
+    env_file:
+      - ./user-service/.env
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  user-service:
+    depends_on:
+      - db
+    build: ./user-service
+    ports:
+      - "5000:5000"
+    image: user-service:latest
+    env_file:
+      - ./user-service/.env
+
+volumes:
+  db-data: 
+  mongo-data:

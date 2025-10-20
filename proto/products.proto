@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package products;
+
+service ProductsService {
+  rpc FindOne (FindOneRequest) returns (Product);
+}
+
+// Mensaje para peticiones que no envían datos (útil para un 'FindAll')
+message Empty {}
+
+// Mensaje NUEVO: Define qué datos necesita el método FindOne
+message FindOneRequest {
+  string id = 1;
+}
+
+// Mensaje 'Product' CORREGIDO
+message Product {
+  string _id = 1;
+  string name = 2;
+  int32 price = 3;
+  string category = 4;
+  string description = 5;
+}
