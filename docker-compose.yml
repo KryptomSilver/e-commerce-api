@@ -1,5 +1,25 @@
-version: '3.8'
 services:
+  product-service:
+    depends_on:
+      - mongodb
+    build: ./product-service
+    ports:
+      - "5001:5001"
+    image: product-service:latest
+    env_file:
+      - ./product-service/.env
+  mongodb:
+    image: mongo:7.0
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${DB_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${DB_PASSWORD}
+      MONGO_INITDB_DATABASE: ${DB_NAME}
+    env_file:
+      - ./product-service/.env
+    volumes:
+      - mongo-data:/data/db
+    ports:
+      - "27017:27017"
   db:
     image: postgres:13
     env_file:
@@ -21,3 +41,4 @@ services:
 
 volumes:
   db-data: 
+  mongo-data:
