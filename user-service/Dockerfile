@@ -32,7 +32,7 @@ RUN npm install --production
 COPY --from=builder /app/dist ./dist
 
 # Exponemos el puerto de la aplicación
-EXPOSE 5001
+EXPOSE 5000
 
 # Comando para iniciar la aplicación directamente con Node (más robusto)
 CMD ["node", "dist/main"]
