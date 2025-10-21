@@ -1,13 +1,34 @@
 services:
+  order-service:
+    build: 
+      context: .
+      dockerfile: ./order-service/Dockerfile
+    ports:
+      - "5002:5002"
+    image: order-service:latest
+    env_file:
+      - ./order-service/.env
   product-service:
     depends_on:
       - mongodb
-    build: ./product-service
+    build: 
+      context: .
+      dockerfile: ./product-service/Dockerfile
     ports:
       - "5001:5001"
+      - "5051:5051"
     image: product-service:latest
     env_file:
       - ./product-service/.env
+  user-service:
+    depends_on:
+      - db
+    build: ./user-service
+    ports:
+      - "5000:5000"
+    image: user-service:latest
+    env_file:
+      - ./user-service/.env
   mongodb:
     image: mongo:7.0
     environment:
@@ -28,17 +49,6 @@ services:
       - db-data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
-
-  user-service:
-    depends_on:
-      - db
-    build: ./user-service
-    ports:
-      - "5000:5000"
-    image: user-service:latest
-    env_file:
-      - ./user-service/.env
-
 volumes:
   db-data: 
   mongo-data:
