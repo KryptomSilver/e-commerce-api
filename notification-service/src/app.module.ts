@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { OrderModule } from './order/order.module';
+import { NotificationModule } from './notification/notification.module';
 import { ConfigModule } from '@nestjs/config';
 
 @Module({
@@ -9,7 +9,7 @@ import { ConfigModule } from '@nestjs/config';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    OrderModule,
+    NotificationModule,
   ],
   controllers: [AppController],
   providers: [AppService],

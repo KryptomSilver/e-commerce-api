@@ -5,7 +5,7 @@ FROM node:20.14.0 AS builder
 WORKDIR /app
 
 # Copiamos primero los archivos de dependencias
-COPY product-service/package.json product-service/package-lock.json ./
+COPY order-service/package.json order-service/package-lock.json ./
 
 # Copyamos el protocolo gRPC en la carpeta proto/product.proto que esta fuera del proyecto
 COPY proto/products.proto ./proto/products.proto
@@ -14,7 +14,7 @@ COPY proto/products.proto ./proto/products.proto
 RUN npm install
 
 # Copiamos el resto del código fuente
-COPY product-service/. .
+COPY order-service/. .
 
 # Compilamos la aplicación
 RUN npm run build
@@ -26,7 +26,7 @@ FROM node:20.14.0 AS production
 WORKDIR /app
 
 # Copiamos solo el package.json y package-lock.json
-COPY product-service/package.json product-service/package-lock.json ./
+COPY order-service/package.json order-service/package-lock.json ./
 
 # Instalamos ÚNICAMENTE las dependencias de producción
 RUN npm install --production
@@ -36,7 +36,7 @@ COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/proto/products.proto ./proto/products.proto
 
 # Exponemos el puerto de la aplicación
-EXPOSE 5001
+EXPOSE 5002
 
 # Comando para iniciar la aplicación directamente con Node (más robusto)
 CMD ["node", "dist/main"]

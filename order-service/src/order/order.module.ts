@@ -3,21 +3,40 @@ import { OrderService } from './order.service';
 import { OrderController } from './order.controller';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { join } from 'path';
+import { ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
-    ClientsModule.register([
+    ClientsModule.registerAsync([
       {
         name: 'PRODUCT_PACKAGE',
-        transport: Transport.GRPC,
-        options: {
-          package: 'products',
-          protoPath: join(__dirname, '../../../proto/products.proto'),
-          loader: {
-            includeDirs: [join(__dirname, '../../../proto')],
+        inject: [ConfigService],
+        useFactory: (configService: ConfigService) => ({
+          transport: Transport.GRPC,
+          options: {
+            package: 'products',
+            protoPath: join(__dirname, '../../proto/products.proto'),
+            loader: {
+              includeDirs: [join(__dirname, '../proto')],
+            },
+            url: configService.get<string>('URL_GRPC_SERVER'),
           },
-          url: 'localhost:5051',
-        },
+        }),
+      },
+      //conectar con microservicio para envio de notificaciones
+      {
+        name: 'NOTIFICATION_SERVICE',
+        inject: [ConfigService],
+        useFactory: (configService: ConfigService) => ({
+          transport: Transport.RMQ,
+          options: {
+            urls: [`${configService.get<string>('RABBITMQ_URL')}`],
+            queue: 'notification_queue',
+            queueOptions: {
+              durable: false,
+            },
+          },
+        }),
       },
     ]),
   ],
