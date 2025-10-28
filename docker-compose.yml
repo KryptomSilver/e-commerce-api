@@ -1,37 +1,70 @@
 services:
+  traefik:
+    image: traefik:v3.0
+    command:
+      - "--api.insecure=true"
+      - "--api.dashboard=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--providers.docker.network=app-network"
+    ports:
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    networks:
+      - app-network
   rabbitmq:
     image: rabbitmq:3-management
-    ports:
-      - "5672:5672"
-      - "15672:15672"
     environment:
       RABBITMQ_DEFAULT_USER: admin
       RABBITMQ_DEFAULT_PASS: pass 
-  notification-service:
-    build: ./notification-service
-    ports:
-      - "5003:5003"
-    image: notification-service:latest
-    env_file:
-      - ./notification-service/.env
+    networks:
+      - app-network
   order-service:
-    build: 
+    depends_on:
+      - db-order
+      - rabbitmq
+    build:
       context: .
       dockerfile: ./order-service/Dockerfile
-    ports:
-      - "5002:5002"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.order-service.rule=PathPrefix(`/api/order`)"
+      - "traefik.http.routers.order-service.entrypoints=web"
+      - "traefik.http.middlewares.strip-api.stripprefix.prefixes=/api"
+      - "traefik.http.routers.order-service.middlewares=strip-api@docker"
+      - "traefik.http.services.order-service.loadbalancer.server.port=5002"
+    networks:
+      - app-network
     image: order-service:latest
     env_file:
       - ./order-service/.env
+  notification-service:
+    depends_on:
+      - rabbitmq
+    build: ./notification-service
+    image: notification-service:latest
+    env_file:
+      - ./notification-service/.env
+    networks:
+      - app-network
   product-service:
     depends_on:
       - mongodb
     build: 
       context: .
       dockerfile: ./product-service/Dockerfile
-    ports:
-      - "5001:5001"
-      - "5051:5051"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.product-service.rule=PathPrefix(`/api/product`)"
+      - "traefik.http.routers.product-service.entrypoints=web"
+      - "traefik.http.middlewares.strip-api.stripprefix.prefixes=/api"
+      - "traefik.http.routers.product-service.middlewares=strip-api@docker"
+      - "traefik.http.services.product-service.loadbalancer.server.port=5001"
+    networks:
+      - app-network
     image: product-service:latest
     env_file:
       - ./product-service/.env
@@ -40,35 +73,46 @@ services:
       - ./user-service/.env
     depends_on:
       - db-user
+      - rabbitmq
     build: ./user-service
-    ports:
-      - "5000:5000"
     image: user-service:latest
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.user-service.rule=PathPrefix(`/api/user`)"
+      - "traefik.http.routers.user-service.entrypoints=web"
+      - "traefik.http.middlewares.strip-api.stripprefix.prefixes=/api"
+      - "traefik.http.routers.user-service.middlewares=strip-api@docker"
+      - "traefik.http.services.user-service.loadbalancer.server.port=5000"
+    networks:
+      - app-network
   mongodb:
     image: mongo:7.0
     env_file:
       - ./product-service/.env
     volumes:
       - mongo-data:/data/db
-    ports:
-      - "27017:27017"
+    networks:
+      - app-network
   db-order:
     image: postgres:13
     env_file:
       - ./order-service/.env
     volumes:
       - db-data-order:/var/lib/postgresql/data
-    ports:
-      - "5434:5432"
+    networks:
+      - app-network
   db-user:
     image: postgres:13
     env_file:
       - ./user-service/.env
     volumes:
       - db-data-user:/var/lib/postgresql/data
-    ports:
-      - "5435:5432"
+    networks:
+      - app-network
 volumes:
   db-data-user:
   mongo-data:
   db-data-order:
+networks:
+  app-network:
+    driver: bridge
