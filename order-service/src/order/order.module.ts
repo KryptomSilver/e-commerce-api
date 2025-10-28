@@ -18,9 +18,9 @@ import { Order } from './entities/order.entity';
           transport: Transport.GRPC,
           options: {
             package: 'products',
-            protoPath: join(__dirname, '../../../proto/products.proto'),
+            protoPath: join(__dirname, '../../proto/products.proto'),
             loader: {
-              includeDirs: [join(__dirname, '../../proto')],
+              includeDirs: [join(__dirname, '../proto')],
             },
             url: configService.get<string>('URL_GRPC_SERVER'),
           },
