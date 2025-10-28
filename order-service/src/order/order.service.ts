@@ -1,29 +1,29 @@
-import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
-import { ClientGrpc } from '@nestjs/microservices';
-import {
-  Product,
-  ProductsService,
-} from './interfaces/product-service.interface';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Order } from './entities/order.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
-export class OrderService implements OnModuleInit {
-  private productsService: ProductsService;
-  constructor(@Inject('PRODUCT_PACKAGE') private client: ClientGrpc) {}
-  onModuleInit() {
-    this.productsService =
-      this.client.getService<ProductsService>('ProductsService');
-  }
-  create(createOrderDto: CreateOrderDto) {
-    return 'This action adds a new order';
+export class OrderService {
+  constructor(
+    @InjectRepository(Order)
+    private readonly orderRepository: Repository<Order>,
+  ) {}
+
+  async create(createOrderDto: CreateOrderDto) {
+    const orderValue = this.orderRepository.create(createOrderDto);
+    const newOrder = await this.orderRepository.save(orderValue);
+    const response = {
+      data: newOrder,
+      message: 'Order created successfully',
+    };
+    return response;
   }
 
-  findAll(){
-    const product: Product = this.productsService.findOne({
-      id: '68f49cfdeb89f3aca7cf22e8',
-    });
-    return product;
+  findAll() {
+    return `This action returns all order`;
   }
 
   findOne(id: number) {
