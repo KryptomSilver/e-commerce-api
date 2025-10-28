@@ -4,9 +4,12 @@ import { OrderController } from './order.controller';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { join } from 'path';
 import { ConfigService } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Order } from './entities/order.entity';
 
 @Module({
   imports: [
+    TypeOrmModule.forFeature([Order]),
     ClientsModule.registerAsync([
       {
         name: 'PRODUCT_PACKAGE',
@@ -15,9 +18,9 @@ import { ConfigService } from '@nestjs/config';
           transport: Transport.GRPC,
           options: {
             package: 'products',
-            protoPath: join(__dirname, '../../proto/products.proto'),
+            protoPath: join(__dirname, '../../../proto/products.proto'),
             loader: {
-              includeDirs: [join(__dirname, '../proto')],
+              includeDirs: [join(__dirname, '../../proto')],
             },
             url: configService.get<string>('URL_GRPC_SERVER'),
           },
