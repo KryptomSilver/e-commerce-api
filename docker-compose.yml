@@ -15,6 +15,10 @@ services:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
     networks:
       - app-network
+  redis:
+    image: redis:7.0
+    networks:
+      - app-network
   rabbitmq:
     image: rabbitmq:3-management
     environment:
@@ -53,6 +57,7 @@ services:
   product-service:
     depends_on:
       - mongodb
+      - redis
     build: 
       context: .
       dockerfile: ./product-service/Dockerfile
