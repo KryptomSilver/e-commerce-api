@@ -5,10 +5,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { ConfigService } from '@nestjs/config';
+import { TokenModule } from 'src/token/token.module';
+import { EncryptionModule } from 'src/encryption/encryption.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([User]),
+    EncryptionModule,
+    TokenModule,
     ClientsModule.registerAsync([
       {
         name: 'NOTIFICATION_SERVICE',
