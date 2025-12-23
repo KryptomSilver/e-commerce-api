@@ -4,12 +4,15 @@ import { AppService } from './app.service';
 import { UserModule } from './user/user.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { TokenModule } from './token/token.module';
+import { EncryptionModule } from './encryption/encryption.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    TokenModule,
     UserModule,
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
@@ -25,6 +28,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
         logging: configService.get('NODE_ENV') === 'development',
       }),
     }),
+    EncryptionModule
   ],
   controllers: [AppController],
   providers: [AppService],
