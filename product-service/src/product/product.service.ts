@@ -36,6 +36,10 @@ export class ProductService {
     return await this.productRepository.findById(id).exec();
   }
 
+  async findByIds(ids: string[]) {
+    return await this.productRepository.find({ _id: { $in: ids } }).exec();
+  }
+
   update(id: string, updateProductDto: UpdateProductDto) {
     return this.productRepository
       .findByIdAndUpdate(id, updateProductDto, {
