@@ -4,9 +4,12 @@ import { OrderController } from './order.controller';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { join } from 'path';
 import { ConfigService } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Order } from './entities/order.entity';
 
 @Module({
   imports: [
+    TypeOrmModule.forFeature([Order]),
     ClientsModule.registerAsync([
       {
         name: 'PRODUCT_PACKAGE',

@@ -23,7 +23,7 @@ async function bootstrap() {
     },
   });
   await app.startAllMicroservices();
-  await app.listen(process.env.PORT ?? 3000);
   logger.log('gRPC microservice is listening on port 5051');
+  await app.listen(process.env.PORT ?? 3000);
 }
 bootstrap();
