@@ -52,7 +52,6 @@ export class OrderService implements OnModuleInit {
       newOrder.orderItems = createOrderDto.orderItems.map((item) => {
         const orderItem = new OrderItem();
         const product = products.find((prod) => prod.id === item.productId);
-        console.log(product, item.productId, products);
         if (!product) {
           throw new NotFoundException(
             `Product with ID ${item.productId} not found`,

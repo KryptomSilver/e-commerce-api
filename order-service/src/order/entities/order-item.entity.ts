@@ -6,7 +6,7 @@ export class OrderItem {
   @PrimaryGeneratedColumn()
   id: number;
   @Column()
-  productId: number;
+  productId: string;
   @Column()
   quantity: number;
   @Column('decimal')

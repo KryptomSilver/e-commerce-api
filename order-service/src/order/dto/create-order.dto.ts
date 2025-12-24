@@ -1,3 +1,5 @@
+import { IsArray, IsMongoId, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
 export class CreateOrderDto {
   id: number;
   orderNumber: string;
@@ -5,10 +7,13 @@ export class CreateOrderDto {
   createdAt: Date;
   userId: number;
   status: string;
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ItemDto)
   orderItems: ItemDto[];
 }
 export class ItemDto {
-  productId: number;
+  @IsMongoId()
+  productId: string;
   quantity: number;
-  price: number;
 }
