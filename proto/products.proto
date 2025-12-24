@@ -4,21 +4,30 @@ package products;
 
 service ProductsService {
   rpc FindOne (FindOneRequest) returns (Product);
+  rpc FindByIds (FindManyRequest) returns (ProductsList);
 }
-
-// Mensaje para peticiones que no envían datos (útil para un 'FindAll')
+// Mensaje para peticiones que buscan múltiples productos por sus IDs
+message FindManyRequest {
+  repeated string ids = 1;
+}
+// Mensaje para devolver una lista de productos
+message ProductsList {
+  repeated Product products = 1;
+}
+// Mensaje para peticiones que no envían datos
 message Empty {}
 
-// Mensaje NUEVO: Define qué datos necesita el método FindOne
+// Mensaje Define qué datos necesita el método FindOne
 message FindOneRequest {
   string id = 1;
 }
 
-// Mensaje 'Product' CORREGIDO
+// Mensaje 'Product'
 message Product {
-  string _id = 1;
+  string id = 1;
   string name = 2;
   int32 price = 3;
   string category = 4;
   string description = 5;
+  string stock = 6;
 }
