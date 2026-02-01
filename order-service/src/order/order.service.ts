@@ -37,7 +37,7 @@ export class OrderService implements OnModuleInit {
       this.productServiceGrpc.findByIds({ ids: productIds }),
     );
     const products = responseProducts?.products ?? [];
-    return await this.dataSource.transaction(async (manager) => {
+    const savedOrder = await this.dataSource.transaction(async (manager) => {
       const newOrder = new Order();
       newOrder.orderNumber = createOrderDto.orderNumber;
       newOrder.createdAt = createOrderDto.createdAt;
@@ -64,13 +64,29 @@ export class OrderService implements OnModuleInit {
         return orderItem;
       });
       newOrder.totalAmount = totalAmount;
-      const savedOrder = await manager.save(Order, newOrder);
-      const response = {
-        data: savedOrder,
-        message: 'Order created successfully',
-      };
-      return response;
+      return await manager.save(Order, newOrder);
     });
+    try {
+      for (const item of createOrderDto.orderItems) {
+        await lastValueFrom(
+          this.productServiceGrpc.decreaseStock({
+            id: item.productId,
+            quantity: item.quantity,
+          }),
+        );
+      }
+    } catch (error) {
+      console.log(error)
+      throw new NotFoundException(
+        'Failed to decrease stock for one or more products',
+      );
+    }
+
+    const response = {
+      data: savedOrder,
+      message: 'Order created successfully',
+    };
+    return response;
   }
 
   async findAll() {
