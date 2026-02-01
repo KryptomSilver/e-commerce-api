@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Product } from './entities/product.entity';
@@ -16,7 +16,7 @@ export class ProductService {
   ) {}
   async create(createProductDto: CreateProductDto) {
     const createdProduct = new this.productRepository(createProductDto);
-    const newProduct =  await createdProduct.save();
+    const newProduct = await createdProduct.save();
     await this.cacheManager.del('all_products');
     return newProduct;
   }
@@ -38,6 +38,26 @@ export class ProductService {
 
   async findByIds(ids: string[]) {
     return await this.productRepository.find({ _id: { $in: ids } }).exec();
+  }
+
+  async decreaseStock(id: string, quantity: number) {
+    const updatedProduct = await this.productRepository
+      .findOneAndUpdate(
+        {
+          _id: id,
+          stock: { $gte: quantity },
+        },
+        { $inc: { stock: -quantity } },
+        { new: true, runValidators: true },
+      )
+      .exec();
+
+    if (!updatedProduct) {
+      console.log('Product not found or insufficient stock');
+      throw new NotFoundException('Product not found or insufficient stock');
+    }
+    await this.cacheManager.del('all_products');
+    return updatedProduct;
   }
 
   update(id: string, updateProductDto: UpdateProductDto) {
