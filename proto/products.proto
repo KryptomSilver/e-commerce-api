@@ -5,7 +5,13 @@ package products;
 service ProductsService {
   rpc FindOne (FindOneRequest) returns (Product);
   rpc FindByIds (FindManyRequest) returns (ProductsList);
+  rpc DecreaseStock (DecreaseStockRequest) returns (Product);
 }
+message DecreaseStockRequest {
+  string id = 1;
+  int32 quantity = 2;
+}
+
 // Mensaje para peticiones que buscan múltiples productos por sus IDs
 message FindManyRequest {
   repeated string ids = 1;

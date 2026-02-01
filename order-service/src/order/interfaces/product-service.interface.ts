@@ -17,7 +17,12 @@ export interface FindManyRequest {
 export interface ProductList {
   products: Product[];
 }
+export interface DecreaseStockRequest {
+  id: string;
+  quantity: number;
+}
 export interface ProductsGrpcService {
   findOne(data: { id: string }): Observable<Product>;
   findByIds(data: FindManyRequest): Observable<ProductList>;
+  decreaseStock(data: DecreaseStockRequest): Observable<Product>;
 }
