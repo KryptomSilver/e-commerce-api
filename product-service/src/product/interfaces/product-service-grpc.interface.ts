@@ -1,4 +1,4 @@
-export interface Product{
+export interface Product {
   id: string;
   name: string;
   description: string;
@@ -14,4 +14,8 @@ export interface FindRequest {
 }
 export interface ProductList {
   products: Product[];
+}
+export interface DecreaseStockRequest {
+  id: string;
+  quantity: number;
 }
